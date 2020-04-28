@@ -1,5 +1,6 @@
 from collections import OrderedDict 
 from fuzzywuzzy import fuzz
+import datetime
 import os
 
 def getKeysByValue(dictOfElements, valueToFind):
@@ -9,18 +10,6 @@ def getKeysByValue(dictOfElements, valueToFind):
         if item[1] == valueToFind:
             listOfKeys.append(item[0])
     return  listOfKeys
-
-def clear():
-    # Test if using some linux distro
-    if os.name == "posix":
-        os.system("clear")
-
-    # Some windows distro
-    elif os.name == "nt":
-        os.system("cls")
-    else:
-        # I really don't know
-        print("I couldn't figure out what operating system you're using")
 
 def getAutocorrect(text):
 
@@ -68,20 +57,72 @@ def getAutocorrect(text):
     return autocorrected, scores
 
 def printAutocorrected(wordsList, scores):
-    # Print it neatly
-    words = ""
+    if len(wordsList) > 0:
+        # Print it neatly
+        editedScores = []
+        for score in scores:
+            score = str(score) + "%"
+            editedScores.append(score)
 
-    for i in range(0, len(wordsList)):
-        words += wordsList[i] + " ({0}%) ".format(scores[i])
-    
-    words = words.strip()
-    words = words.replace(") ", "), ")
+        for word1,score1,word2,score2,word3,score3 in zip(wordsList[::3], editedScores[::3], wordsList[1::3], editedScores[1::3], wordsList[2::3], editedScores[2::3]):
+            print("{:<} {:<30}{:<} {:<30}{:<} {:}".format(word1,score1,word2,score2,word3,score3))
+    else:
+        print("We couldn't find anything :(")
 
-    print(words)
+def clear():
+    # Test if using some linux distro
+    if os.name == "posix":
+        os.system("clear")
 
+    # Some windows distro
+    elif os.name == "nt":
+        os.system("cls")
+    else:
+        # I really don't know
+        print("I couldn't figure out what operating system you're using")
+
+def initialize():
+    clear
+
+    # Get all the current time and date info
+    currentYear = datetime.date.today().year
+    currentMonth = datetime.date.today().month
+    currentMonth = datetime.date(currentYear, currentMonth, 1).strftime('%b')
+    currentDay = datetime.date.today().day
+    time = datetime.datetime.now().strftime("%H:%M").split(":")
+    currentTime = ""
+    if int(time[0]) - 12 > 0:
+        currentTime += str(int(time[0]) - 12)
+        currentTime += ":" + time[1]
+        currentTime += " PM"
+    else:
+        currentTime += time[0]
+        currentTime += ":" + time[1]
+        currentTime += "AM"
+
+    # Display all the fancy stuffs :D
+    header = """Autocorrect Beta (built on Python) {0}  {1} {2}, {3} 
+Type "help" or "credits" for more information.""".format(currentTime, currentMonth, currentDay, currentYear)
+
+    print(header)
+
+def getHelp():
+    print("")
+    print("Type in a word and the program will print possible spellings and their accuracy percentage")
+    print("")
+    print("    Type 'exit' to exit this program")
+    print("    Type 'clear' to clear the screen")
+    print("    Type 'help' to receive this help message again")
+    print("")
+
+def getCredits():
+    print("")
+    print("Written in Python by Yixuan-LULU and GeorgeFreidrick :D")
+    print("")
 
 def main():
     clear()
+    initialize()
     done = False
     while done == False:
         print(">>> ", end="")
@@ -91,10 +132,16 @@ def main():
         elif word == "exit":
             clear()
             exit()
+        elif word == "help":
+            getHelp()
+        elif word == "credits":
+            getCredits()
         else:
-            print("Searching...", end="\r")
+            print("Searching...", end="")
             autocorrected, scores = getAutocorrect(word)
+            print("\r            ")
             printAutocorrected(autocorrected, scores)
+            print("")
 
 if __name__ == "__main__":
     main()
