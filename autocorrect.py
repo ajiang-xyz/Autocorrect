@@ -18,4 +18,3 @@ def getAutocorrect(text):
 
     # Return list of 5 words
     return autocorrected
-    
