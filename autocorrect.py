@@ -1,5 +1,5 @@
 from collections import OrderedDict 
-import Levenshtein
+from fuzzywuzzy import fuzz
 
 def getAutocorrect(text):
 
@@ -8,31 +8,38 @@ def getAutocorrect(text):
     with open('wordlist.txt') as words:
         for word in words:
 
-            # Use the Levenshtein function to get the number of different characters
-            score = Levenshtein.jaro_winkler(text, word)
+            # Use Fuzzywuzzy to determine the percentage of "sameness"
+            score = fuzz.ratio(word, text)
             candidates[score] = word
 
-    # Determine the 5 words with the lowest score (closest to the word typed in)
+    # Determine the 5 words with the highest match percentage (closest to the word typed in)
 
     candidates = dict(OrderedDict(sorted(candidates.items())))
-    edited = []
-    for i in (-1, -2, -3, -4, -5):
-        edited.append(list(candidates.values())[i])
+    edited = {}
+    for score in candidates.keys():
+        if score >= 75:
+            edited[candidates[score]] = score
 
     autocorrected = []
-    for wordNewline in edited:
+    scores = []
+    for wordNewline in edited.keys():
         word = wordNewline.replace("\n", "")
         autocorrected.append(word)
 
-    # Return list of 5 words
-    return autocorrected
+    for score in edited.values():
+        scores.append(score)
 
-def printAutocorrected(wordsList):
+    # Return list of 5 words
+    autocorrected.reverse()
+    scores.reverse()
+    return autocorrected, scores
+
+def printAutocorrected(wordsList, scores):
     # Print it neatly
     words = ""
 
-    for word in wordsList:
-        words += word + " "
+    for i in range(0, len(wordsList)):
+        words += wordsList[i] + "({0}) ".format(scores[i])
     
     words = words.strip()
     words = words.replace(" ", ", ")
@@ -43,5 +50,5 @@ def printAutocorrected(wordsList):
 def main():
     pass
 
-autocorrectedList = getAutocorrect("apogoetropims")
-printAutocorrected(autocorrectedList)
+autocorrectedList, scores = getAutocorrect("apogeotropims")
+printAutocorrected(autocorrectedList, scores)
