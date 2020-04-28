@@ -1,3 +1,4 @@
+from collections import OrderedDict 
 import Levenshtein
 
 def getAutocorrect(text):
@@ -12,9 +13,35 @@ def getAutocorrect(text):
             candidates[score] = word
 
     # Determine the 5 words with the lowest score (closest to the word typed in)
+
+    candidates = dict(OrderedDict(sorted(candidates.items())))
+    edited = []
+    for i in (-1, -2, -3, -4, -5):
+        edited.append(list(candidates.values())[i])
+
     autocorrected = []
-    for i in range(0, 6):
-        autocorrected.append(list(sorted(candidates.values()))[i])
+    for wordNewline in edited:
+        word = wordNewline.replace("\n", "")
+        autocorrected.append(word)
 
     # Return list of 5 words
     return autocorrected
+
+def printAutocorrected(wordsList):
+    # Print it neatly
+    words = ""
+
+    for word in wordsList:
+        words += word + " "
+    
+    words = words.strip()
+    words = words.replace(" ", ", ")
+
+    print(words)
+
+
+def main():
+    pass
+
+autocorrectedList = getAutocorrect("apogoetropims")
+printAutocorrected(autocorrectedList)
