@@ -1,5 +1,6 @@
 from collections import OrderedDict 
 from fuzzywuzzy import fuzz
+import os
 
 def getKeysByValue(dictOfElements, valueToFind):
     listOfKeys = list()
@@ -8,6 +9,18 @@ def getKeysByValue(dictOfElements, valueToFind):
         if item[1] == valueToFind:
             listOfKeys.append(item[0])
     return  listOfKeys
+
+def clear():
+    # Test if using some linux distro
+    if os.name == "posix":
+        os.system("clear")
+
+    # Some windows distro
+    elif os.name == "nt":
+        os.system("cls")
+    else:
+        # I really don't know
+        print("I couldn't figure out what operating system you're using")
 
 def getAutocorrect(text):
 
@@ -68,7 +81,20 @@ def printAutocorrected(wordsList, scores):
 
 
 def main():
-    pass
+    clear()
+    done = False
+    while done == False:
+        print(">>> ", end="")
+        word = input("")
+        if word == "clear":
+            clear()
+        elif word == "exit":
+            clear()
+            exit()
+        else:
+            print("Searching...", end="\r")
+            autocorrected, scores = getAutocorrect(word)
+            printAutocorrected(autocorrected, scores)
 
-autocorrected, scores = getAutocorrect("apogeotropizm")
-printAutocorrected(autocorrected, scores)
+if __name__ == "__main__":
+    main()
