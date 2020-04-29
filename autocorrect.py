@@ -34,7 +34,7 @@ def getAutocorrect(wordList, text):
 
     for score in edited.values():
         scores.append(score)
-        
+
     return autocorrected, scores
 
 def printAutocorrected(wordsList, scores):
@@ -106,7 +106,7 @@ def getHelp():
     print("    Type 'exit' to exit this program")
     print("    Type 'clear' to clear the screen")
     print("    Type 'help' to receive this help message again")
-    print("    Type 'credit' to see credits for this program")
+    print("    Type 'credits' to see credits for this program")
     print("")
 
 def getCredits():
