@@ -1,5 +1,5 @@
 from collections import OrderedDict 
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 import datetime
 import os
 
@@ -119,7 +119,7 @@ def prompt():
     wordList = initialize()
     done = False
     while done == False:
-        print(">>> ", end="")
+        print("autocorrect >>> ", end="")
         word = input("")
         if word == "clear":
             clear()
