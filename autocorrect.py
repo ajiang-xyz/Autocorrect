@@ -11,27 +11,21 @@ def getKeysByValue(dictOfElements, valueToFind):
             listOfKeys.append(item[0])
     return  listOfKeys
 
-def getAutocorrect(text):
+def getAutocorrect(wordList, text):
 
     # Loop over each word in the list
     candidates = {}
-    with open('wordlist.txt') as words:
-        for word in words:
-            word.replace("\n", "")
-            word = word.rstrip("\r\n")
-
-            # Use Fuzzywuzzy to determine the percentage of "sameness"
-            score = fuzz.ratio(word, text)
-            candidates[word] = score
+    for word in wordList:
+        # Use Fuzzywuzzy to determine the percentage of "sameness"
+        score = fuzz.ratio(word, text)
+        candidates[word] = score
 
     # Determine the 5 words with the highest match percentage (closest to the word typed in)
 
-    candidates = dict(OrderedDict(sorted(candidates.items())))
+    candidates = {k: v for k, v in sorted(candidates.items(), key=lambda item: item[1])}
     edited = {}
-    for score in candidates.values():
-        if score >= 75:
-            for key in getKeysByValue(candidates, score):
-                edited[key] = score
+    for i in (-1, -2, -3, -4, -5):
+        edited[list(candidates.keys())[i]] = list(candidates.values())[i]
 
     autocorrected = []
     scores = []
@@ -40,20 +34,7 @@ def getAutocorrect(text):
 
     for score in edited.values():
         scores.append(score)
-
-    # Return list of 5 words
-    # autocorrected.reverse()
-    # scores.reverse()
-
-    sort = {autocorrected[i]: scores[i] for i in range(len(autocorrected))}
-    sort = dict(OrderedDict(sorted(sort.items())))
-    sort = {k: v for k, v in sorted(sort.items(), key=lambda item: item[1])}
-    autocorrected = list(sort.keys())
-    scores = list(sort.values())
-    
-
-    autocorrected.reverse()
-    scores.reverse()
+        
     return autocorrected, scores
 
 def printAutocorrected(wordsList, scores):
@@ -64,8 +45,13 @@ def printAutocorrected(wordsList, scores):
             score = str(score) + "%"
             editedScores.append(score)
 
-        for word1,score1,word2,score2,word3,score3 in zip(wordsList[::3], editedScores[::3], wordsList[1::3], editedScores[1::3], wordsList[2::3], editedScores[2::3]):
-            print("{:<} {:<30}{:<} {:<30}{:<} {:}".format(word1,score1,word2,score2,word3,score3))
+        entries = []
+        for word, score in zip(wordsList, scores):
+            entry = str(word) + " " + str(score) + "%"
+            entries.append(entry)
+
+        for entry in entries:
+            print(entry)
     else:
         print("We couldn't find anything :(")
 
@@ -82,6 +68,12 @@ def clear():
         print("I couldn't figure out what operating system you're using")
 
 def initialize():
+    wordList = []
+    with open('wordlist.txt') as words:
+        for word in words:
+            word.replace("\n", "")
+            word = word.rstrip("\r\n")
+            wordList.append(word)
     clear
 
     # Get all the current time and date info
@@ -105,6 +97,7 @@ def initialize():
 Type "help" or "credits" for more information.""".format(currentTime, currentMonth, currentDay, currentYear)
 
     print(header)
+    return wordList
 
 def getHelp():
     print("")
@@ -123,7 +116,7 @@ def getCredits():
 
 def prompt():
     clear()
-    initialize()
+    wordList = initialize()
     done = False
     while done == False:
         print(">>> ", end="")
@@ -138,8 +131,8 @@ def prompt():
         elif word == "credits":
             getCredits()
         else:
-            print("Searching...", end="")
-            autocorrected, scores = getAutocorrect(word)
+            print("Searching...", end=" ")
+            autocorrected, scores = getAutocorrect(wordList, word)
             print("\r            ")
             printAutocorrected(autocorrected, scores)
             print("")
