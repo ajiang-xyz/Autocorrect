@@ -121,7 +121,7 @@ def getCredits():
     print("Written in Python by Yixuan-LULU and GeorgeFreidrick :D")
     print("")
 
-def main():
+def prompt():
     clear()
     initialize()
     done = False
@@ -145,4 +145,4 @@ def main():
             print("")
 
 if __name__ == "__main__":
-    main()
+    prompt()
